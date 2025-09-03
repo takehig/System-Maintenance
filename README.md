@@ -17,7 +17,7 @@
 
 ## エンドポイント
 
-- `GET /` - メンテナンス画面
+- `GET /` - LogAPIメイン画面
 - `GET /api/logs/{service}` - 指定サービスのログ取得
 - `GET /health` - ヘルスチェック
 

@@ -33,9 +33,9 @@ SERVICES = {
 }
 
 @app.get("/", response_class=HTMLResponse)
-async def maintenance_page(request: Request):
-    """メンテナンス画面を表示"""
-    return templates.TemplateResponse("maintenance.html", {"request": request})
+async def index_page(request: Request):
+    """LogAPI メイン画面を表示"""
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/api/logs/{service}")
 async def get_service_logs(service: str) -> Dict[str, Any]:
