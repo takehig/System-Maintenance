@@ -1,0 +1,24 @@
+[Unit]
+Description=LogAPI Service - システムログ監視
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/LogAPI
+ExecStart=/usr/bin/python3 main.py
+Restart=always
+RestartSec=3
+
+# 環境変数
+Environment=PYTHONPATH=/home/ec2-user/LogAPI
+Environment=PYTHONUNBUFFERED=1
+
+# ログ設定
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=logapi
+
+[Install]
+WantedBy=multi-user.target
