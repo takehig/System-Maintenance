@@ -143,23 +143,55 @@
                     logContainer.scrollTop = logContainer.scrollHeight;
                     
                     // 自動的にクリップボードにコピー
-                    try {
-                        await navigator.clipboard.writeText(logContainer.textContent);
-                        // 成功時の表示
-                        button.innerHTML = '<i class="fas fa-check text-success"></i> 更新・コピー完了';
-                        button.classList.add('btn-success');
-                        button.classList.remove('btn-outline-primary');
-                        
-                        // 2秒後に元に戻す
-                        setTimeout(() => {
-                            button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
-                            button.classList.remove('btn-success');
-                            button.classList.add('btn-outline-primary');
-                        }, 2000);
-                    } catch (clipboardError) {
-                        console.warn('クリップボードコピー失敗:', clipboardError);
-                        // コピー失敗でも更新は成功
-                        button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新完了';
+                    const logText = logContainer.textContent || logContainer.innerText || '';
+                    console.log('[CLIPBOARD DEBUG] ログテキスト長:', logText.length);
+                    console.log('[CLIPBOARD DEBUG] HTTPS:', location.protocol === 'https:');
+                    console.log('[CLIPBOARD DEBUG] navigator.clipboard:', !!navigator.clipboard);
+                    
+                    if (logText.length === 0) {
+                        console.warn('[CLIPBOARD DEBUG] ログが空です');
+                        button.innerHTML = '<i class="fas fa-exclamation-triangle text-warning"></i> ログが空';
+                    } else {
+                        try {
+                            if (navigator.clipboard && navigator.clipboard.writeText) {
+                                await navigator.clipboard.writeText(logText);
+                                console.log('[CLIPBOARD DEBUG] navigator.clipboard.writeText 成功');
+                                button.innerHTML = '<i class="fas fa-check text-success"></i> 更新・コピー完了';
+                                button.classList.add('btn-success');
+                                button.classList.remove('btn-outline-primary');
+                            } else {
+                                // フォールバック: 古いブラウザ対応
+                                const textArea = document.createElement('textarea');
+                                textArea.value = logText;
+                                document.body.appendChild(textArea);
+                                textArea.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(textArea);
+                                console.log('[CLIPBOARD DEBUG] document.execCommand フォールバック成功');
+                                button.innerHTML = '<i class="fas fa-check text-info"></i> 更新・コピー完了(互換)';
+                                button.classList.add('btn-info');
+                                button.classList.remove('btn-outline-primary');
+                            }
+                            
+                            // 2秒後に元に戻す
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
+                                button.classList.remove('btn-success', 'btn-info');
+                                button.classList.add('btn-outline-primary');
+                            }, 2000);
+                            
+                        } catch (clipboardError) {
+                            console.error('[CLIPBOARD DEBUG] コピー失敗:', clipboardError);
+                            button.innerHTML = '<i class="fas fa-times text-danger"></i> コピー失敗';
+                            button.classList.add('btn-danger');
+                            button.classList.remove('btn-outline-primary');
+                            
+                            setTimeout(() => {
+                                button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
+                                button.classList.remove('btn-danger');
+                                button.classList.add('btn-outline-primary');
+                            }, 3000);
+                        }
                     }
                 } else {
                     logContainer.innerHTML = 'エラー: ' + data.error;
