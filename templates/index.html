@@ -49,9 +49,6 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="refreshLog('aichat')">
                                 <i class="fas fa-sync-alt"></i> 更新
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('aichat-log')">
-                                <i class="fas fa-copy"></i> コピー
-                            </button>
                         </div>
                         <div id="aichat-log" class="log-container">
                             更新ボタンを押してログを表示
@@ -71,8 +68,6 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="refreshLog('crm-mcp')">
                                 <i class="fas fa-sync-alt"></i> 更新
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('crm-mcp-log')">
-                                <i class="fas fa-copy"></i> コピー
                             </button>
                         </div>
                         <div id="crm-mcp-log" class="log-container">
@@ -93,8 +88,6 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="refreshLog('productmaster-mcp')">
                                 <i class="fas fa-sync-alt"></i> 更新
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('productmaster-mcp-log')">
-                                <i class="fas fa-copy"></i> コピー
                             </button>
                         </div>
                         <div id="productmaster-mcp-log" class="log-container">
@@ -115,8 +108,6 @@
                             <button class="btn btn-sm btn-outline-primary" onclick="refreshLog('database-mgmt')">
                                 <i class="fas fa-sync-alt"></i> 更新
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('database-mgmt-log')">
-                                <i class="fas fa-copy"></i> コピー
                             </button>
                         </div>
                         <div id="database-mgmt-log" class="log-container">
@@ -150,53 +141,36 @@
                     logContainer.innerHTML = data.logs;
                     // 最新ログにスクロール
                     logContainer.scrollTop = logContainer.scrollHeight;
+                    
+                    // 自動的にクリップボードにコピー
+                    try {
+                        await navigator.clipboard.writeText(logContainer.textContent);
+                        // 成功時の表示
+                        button.innerHTML = '<i class="fas fa-check text-success"></i> 更新・コピー完了';
+                        button.classList.add('btn-success');
+                        button.classList.remove('btn-outline-primary');
+                        
+                        // 2秒後に元に戻す
+                        setTimeout(() => {
+                            button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
+                            button.classList.remove('btn-success');
+                            button.classList.add('btn-outline-primary');
+                        }, 2000);
+                    } catch (clipboardError) {
+                        console.warn('クリップボードコピー失敗:', clipboardError);
+                        // コピー失敗でも更新は成功
+                        button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新完了';
+                    }
                 } else {
                     logContainer.innerHTML = 'エラー: ' + data.error;
+                    button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
                 }
             } catch (error) {
                 logContainer.innerHTML = 'ネットワークエラー: ' + error.message;
+                button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
             } finally {
                 // ボタンを有効化
                 button.disabled = false;
-                button.innerHTML = '<i class="fas fa-sync-alt"></i> 更新';
-            }
-        }
-        
-        async function copyToClipboard(elementId) {
-            const logContainer = document.getElementById(elementId);
-            const button = event.target;
-            
-            try {
-                // ログ内容をクリップボードにコピー
-                await navigator.clipboard.writeText(logContainer.textContent);
-                
-                // ボタンの表示を一時的に変更
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check text-success"></i> コピー済み';
-                button.classList.add('btn-success');
-                button.classList.remove('btn-outline-secondary');
-                
-                // 2秒後に元に戻す
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                    button.classList.remove('btn-success');
-                    button.classList.add('btn-outline-secondary');
-                }, 2000);
-                
-            } catch (error) {
-                // エラー時の表示
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-times text-danger"></i> エラー';
-                button.classList.add('btn-danger');
-                button.classList.remove('btn-outline-secondary');
-                
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                    button.classList.remove('btn-danger');
-                    button.classList.add('btn-outline-secondary');
-                }, 2000);
-                
-                console.error('クリップボードコピーエラー:', error);
             }
         }
     </script>
