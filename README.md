@@ -1,48 +1,34 @@
-# LogAPI Service
+# LogAPI - System Maintenance Tool
 
-システムログ監視サービス - Port 8005
+## 概要
+WealthAI Enterprise Systems用ログ管理・表示システム
 
-## 機能
+## 主要機能
+- **ログ表示**: システムログのWeb表示
+- **ログ管理**: ログファイルの管理・検索
+- **Portal統合**: 統合ポータルからアクセス可能
 
-- 各サービスのsystemdログをリアルタイム表示
-- ログ内容のクリップボードコピー機能
-- 独立したWebインターフェース
+## 技術スタック
+- **Backend**: Python FastAPI
+- **Frontend**: HTML5 + Bootstrap
+- **Port**: 8005
 
-## サービス一覧
+## アクセス情報
+- **URL**: http://44.217.45.24/logs/
+- **直接**: http://44.217.45.24:8005/
+- **GitHub**: https://github.com/takehig/System-Maintenance
 
-- AIChat (Port 8002)
-- CRM MCP (Port 8004) 
-- ProductMaster MCP (Port 8003)
-- Database Management (Port 8006)
-
-## エンドポイント
-
-- `GET /` - LogAPIメイン画面
-- `GET /api/logs/{service}` - 指定サービスのログ取得
-- `GET /health` - ヘルスチェック
-
-## 起動方法
-
+## 運用管理
 ```bash
-cd LogAPI
-python -m pip install -r requirements.txt
-python main.py
+# サービス管理
+sudo systemctl start|stop|restart logapi
+sudo systemctl status logapi
+
+# ログ確認
+sudo journalctl -u logapi -f
 ```
 
-## systemd設定
-
-```ini
-[Unit]
-Description=LogAPI Service
-After=network.target
-
-[Service]
-Type=simple
-User=ec2-user
-WorkingDirectory=/home/ec2-user/LogAPI
-ExecStart=/usr/bin/python3 main.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
+## 設置場所
+- **EC2**: /home/ec2-user/LogAPI/
+- **systemd**: /etc/systemd/system/logapi.service
+- **Nginx**: /logs/ → http://127.0.0.1:8005/
